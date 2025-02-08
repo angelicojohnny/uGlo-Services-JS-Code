@@ -391,8 +391,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
-
 document.addEventListener("DOMContentLoaded", function () {
     const slides = Array.from(document.querySelectorAll(".slide"));
     const prevButton = document.querySelector(".prev");
