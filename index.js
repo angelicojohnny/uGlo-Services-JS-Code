@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (faqElement) {
         faqElement.click();
     }
-
+  
     // Dropdown delay adjustment
     function adjustDropdownDelay() {
         const delay = window.innerWidth <= 768 ? '0' : '300';
@@ -13,34 +13,34 @@ document.addEventListener('DOMContentLoaded', function() {
             el.setAttribute('data-delay', delay);
         });
     }
-
+  
     adjustDropdownDelay();
     window.addEventListener('resize', adjustDropdownDelay);
-});
-
-// BeerSlider Implementation
-"use strict";
-
-function _instanceof(e, t) {
+  });
+  
+  // BeerSlider Implementation
+  "use strict";
+  
+  function _instanceof(e, t) {
     return null != t && "undefined" != typeof Symbol && t[Symbol.hasInstance] ? !!t[Symbol.hasInstance](e) : e instanceof t
-}
-
-function _classCallCheck(e, t) {
+  }
+  
+  function _classCallCheck(e, t) {
     if (!_instanceof(e, t)) throw new TypeError("Cannot call a class as a function")
-}
-
-function _defineProperties(e, t) {
+  }
+  
+  function _defineProperties(e, t) {
     for (var a = 0; a < t.length; a++) {
         var i = t[a];
         i.enumerable = i.enumerable || !1, i.configurable = !0, "value" in i && (i.writable = !0), Object.defineProperty(e, i.key, i)
     }
-}
-
-function _createClass(e, t, a) {
+  }
+  
+  function _createClass(e, t, a) {
     return t && _defineProperties(e.prototype, t), a && _defineProperties(e, a), e
-}
-
-var BeerSlider = function() {
+  }
+  
+  var BeerSlider = function() {
     function i(e) {
         var t = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "50";
         var a = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "udesly-before-after";
@@ -59,7 +59,7 @@ var BeerSlider = function() {
             console.error('Required images are missing');
             return;
         }
-
+  
         this.revealContainerImage = document.createElement("div");
         this.revealContainerImage.classList.add("".concat(this.prefix, "-reveal"));
         this.revealContainerImage.appendChild(this.imageLeft);
@@ -76,7 +76,7 @@ var BeerSlider = function() {
             min: "0",
             max: "100"
         });
-
+  
         this.handle = this.element.querySelector('[before-after="handle"]');
         if (this.handle) {
             this.handle.classList.add("udesly-before-after-handle");
@@ -84,10 +84,10 @@ var BeerSlider = function() {
             console.error('Handle element is missing');
             return;
         }
-
+  
         this.onImagesLoad();
     }
-
+  
     _createClass(i, [{
         key: "init",
         value: function() {
@@ -112,7 +112,7 @@ var BeerSlider = function() {
                         resolve();
                         return;
                     }
-
+  
                     const stepCount = (ANIMATION_DURATION / 1000) * ANIMATION_STEPS;
                     const stepSize = (endPos - startPos) / stepCount;
                     let currentStep = 0;
@@ -122,12 +122,12 @@ var BeerSlider = function() {
                             resolve();
                             return;
                         }
-
+  
                         currentStep++;
                         const newPosition = startPos + (stepSize * currentStep);
                         self.range.value = newPosition;
                         self.move();
-
+  
                         if (currentStep < stepCount) {
                             setTimeout(step, 1000 / ANIMATION_STEPS);
                         } else {
@@ -138,21 +138,21 @@ var BeerSlider = function() {
                     step();
                 });
             }
-
+  
             async function animationSequence() {
                 while (self.isAnimating) {
                     await new Promise(resolve => setTimeout(resolve, PAUSE_DURATION));
                     if (!self.isAnimating) break;
-
+  
                     await animateToPosition(parseFloat(self.range.value), 0);
                     if (!self.isAnimating) break;
-
+  
                     await new Promise(resolve => setTimeout(resolve, PAUSE_DURATION));
                     if (!self.isAnimating) break;
-
+  
                     await animateToPosition(0, 100);
                     if (!self.isAnimating) break;
-
+  
                     await new Promise(resolve => setTimeout(resolve, PAUSE_DURATION));
                     if (!self.isAnimating) break;
                 }
@@ -221,16 +221,26 @@ var BeerSlider = function() {
             var t = this;
             
             ["mousedown", "touchstart"].forEach(function(e) {
-                t.range.addEventListener(e, function() {
+                t.range.addEventListener(e, function(event) {
                     t.isAnimating = false;
+                    event.stopPropagation();
+                }, { passive: false });
                 });
-            });
-
             ["input", "change"].forEach(function(e) {
-                t.range.addEventListener(e, function() {
+                t.range.addEventListener(e, function(event) {
                     t.move();
+                    event.stopPropagation();
                 });
             });
+            
+            t.range.addEventListener('touchmove', function(event) {
+                event.preventDefault();
+                var touch = event.touches[0];
+                var rangeRect = t.range.getBoundingClientRect();
+                var newValue = ((touch.clientX - rangeRect.left) / rangeRect.width) * 100;
+                t.range.value = Math.max(0, Math.min(100, newValue));
+                t.move();
+            }, { passive: false });
             
             let resizeTimeout;
             window.addEventListener("resize", function() {
@@ -246,7 +256,7 @@ var BeerSlider = function() {
             this.revealContainerImage.style.width = "".concat(this.range.value, "%");
             this.handle.style.left = "".concat(this.range.value, "%");
             this.range.setAttribute("aria-valuenow", this.range.value);
-
+  
             if (this.labelRight) {
                 this.labelRight.style.opacity = this.range.value > 90 ? 
                     Math.max(0, (100 - this.range.value) / 10) : "1";
@@ -257,20 +267,20 @@ var BeerSlider = function() {
             }
         }
     }]);
-
+  
     return i;
-}();
-
-// Add styles
-const style = document.createElement("style");
-style.innerHTML = `
-.udesly-before-after-slider {
+  }();
+  
+  // Add styles
+  const style = document.createElement("style");
+  style.innerHTML = `
+  .udesly-before-after-slider {
     display: inline-block;
     overflow: hidden;
     position: relative;
     width: 100%;
-}
-.udesly-before-after-reveal {
+  }
+  .udesly-before-after-reveal {
     left: 0;
     opacity: 0;
     overflow: hidden;
@@ -279,14 +289,14 @@ style.innerHTML = `
     top: 0;
     transition: opacity 0.35s;
     z-index: 1;
-}
-.udesly-before-after-reveal > :first-child {
+  }
+  .udesly-before-after-reveal > :first-child {
     height: 100%;
     max-width: none;
     width: 100%;
     object-fit: cover;
-}
-.udesly-before-after-range {
+  }
+  .udesly-before-after-range {
     -webkit-appearance: none;
     appearance: none;
     background: transparent;
@@ -301,22 +311,22 @@ style.innerHTML = `
     touch-action: auto;
     width: calc(100% + 2px);
     z-index: 3;
-}
-.udesly-before-after-range::-webkit-slider-thumb {
+  }
+  .udesly-before-after-range::-webkit-slider-thumb {
     -webkit-appearance: none;
     height: 100%;
     width: 2px;
     background: transparent;
     cursor: col-resize;
-}
-.udesly-before-after-range::-moz-range-thumb {
+  }
+  .udesly-before-after-range::-moz-range-thumb {
     height: 100%;
     width: 2px;
     background: transparent;
     cursor: col-resize;
     border: none;
-}
-.udesly-before-after-handle {
+  }
+  .udesly-before-after-handle {
     left: 50%;
     pointer-events: none;
     position: absolute;
@@ -324,56 +334,56 @@ style.innerHTML = `
     transform: translate3d(-50%, -50%, 0);
     transition: background 0.3s, box-shadow 0.3s, opacity 0.5s 0.25s;
     z-index: 2;
-}
-.udesly-before-after-ready .udesly-before-after-handle,
-.udesly-before-after-ready .udesly-before-after-reveal {
+  }
+  .udesly-before-after-ready .udesly-before-after-handle,
+  .udesly-before-after-ready .udesly-before-after-reveal {
     opacity: 1;
-}
-.udesly-before-after-ready img {
+  }
+  .udesly-before-after-ready img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-.udesly-before-after-ready [image="left"] {
+  }
+  .udesly-before-after-ready [image="left"] {
     position: relative;
-}
-.udesly-before-after-ready [image="right"] {
+  }
+  .udesly-before-after-ready [image="right"] {
     position: absolute;
     top: 0;
     left: 0;
-}
-.udesly-before-after-error {
+  }
+  .udesly-before-after-error {
     border: 1px solid red;
-}`;
-document.head.appendChild(style);
-
-// Initialize BeerSlider
-document.addEventListener("DOMContentLoaded", function () {
+  }`;
+  document.head.appendChild(style);
+  
+  // Initialize BeerSlider
+  document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("[udesly-before-after]").forEach(function (slider) {
         const startValue = 80;
         new BeerSlider(slider, startValue);
     });
-});
-
-// Pricing Dropdown Handler
-document.addEventListener('DOMContentLoaded', function() {
+  });
+  
+  // Pricing Dropdown Handler
+  document.addEventListener('DOMContentLoaded', function() {
     const dropdownToggles = document.querySelectorAll('.pricing-dropdown');
     const dropdownWrappers = document.querySelectorAll('.choose-a-product_wrapper');
-
+  
     dropdownToggles.forEach((dropdownToggle, index) => {
         const dropdownText = dropdownToggle.querySelector('div:nth-child(2)');
         const dropdownWrapper = dropdownWrappers[index];
-
+  
         dropdownText.textContent = 'Process #2';
-
+  
         function updateMobileTable(selectedValue) {
             document.querySelectorAll('[mobile-table]').forEach(element => {
                 element.style.display = element.getAttribute('mobile-table') === selectedValue ? 'block' : 'none';
             });
         }
-
+  
         updateMobileTable('process-two');
-
+  
         dropdownWrapper.querySelectorAll('.choose-a-product_link').forEach(link => {
             link.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -382,16 +392,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 dropdownWrapper.style.display = 'none';
             });
         });
-
+  
         dropdownToggle.addEventListener('click', function() {
             dropdownWrapper.style.display = dropdownWrapper.style.display === 'none' || dropdownWrapper.style.display === '' ? 'block' : 'none';
         });
     });
-});
-
-
-
-document.addEventListener("DOMContentLoaded", function () {
+  });
+  
+  
+  // Slider JS
+  document.addEventListener("DOMContentLoaded", function () {
     const slides = Array.from(document.querySelectorAll(".slide"));
     const prevButton = document.querySelector(".prev");
     const nextButton = document.querySelector(".next");
@@ -416,18 +426,18 @@ document.addEventListener("DOMContentLoaded", function () {
           slide.classList.add("active");
         }
       });
-  
+
       prevButton.disabled = activeIndex === slides.length - 1;
       nextButton.disabled = activeIndex === 0;
       prevButton.style.opacity = prevButton.disabled ? "0.1" : "1";
       nextButton.style.opacity = nextButton.disabled ? "0.1" : "1";
-  
+
       toggleCtaHeader();
     }
-  
+
     function toggleCtaHeader() {
       const activeSlide = document.querySelector(".slide.active");
-  
+
       if (activeSlide && activeSlide.classList.contains("get-started")) {
         ctaHeader.style.opacity = "0";
         ctaHeader.style.pointerEvents = "none";
@@ -438,31 +448,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 10); // Delay for smooth transition
       }
     }
-  
+
     function prevSlide() {
       activeIndex = (activeIndex + 1) % slides.length;
       updateSlideTransforms();
     }
-  
+
     function nextSlide() {
       activeIndex = (activeIndex - 1 + slides.length) % slides.length;
       updateSlideTransforms();
     }
-  
+
     prevButton.addEventListener("click", prevSlide);
     nextButton.addEventListener("click", nextSlide);
     updateSlideTransforms();
-  
+
     // Observe slide changes dynamically
     const observer = new MutationObserver(() => {
       toggleCtaHeader();
     });
-  
+
     slides.forEach((slide) => {
       observer.observe(slide, { attributes: true, attributeFilter: ["class"] });
     });
   });
-  
+
+
 
 
 
